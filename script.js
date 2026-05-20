@@ -1,7 +1,96 @@
+// Auth State Management
+let isLoginMode = true;
+const authSection = document.getElementById('authSection');
+const welcomeSection = document.getElementById('welcomeSection');
+const systemSection = document.getElementById('systemSection');
+
+window.onload = () => {
+  const user = localStorage.getItem('hrm_user');
+  if (user) {
+    welcomeSection.style.display = 'block';
+  } else {
+    authSection.style.display = 'block';
+  }
+};
+
+window.logout = function() {
+  localStorage.removeItem('hrm_user');
+  window.location.reload();
+};
+
+const toggleAuthMode = document.getElementById('toggleAuthMode');
+const authTitle = document.getElementById('authTitle');
+const authSubmitBtn = document.getElementById('authSubmitBtn');
+const authError = document.getElementById('authError');
+const authForm = document.getElementById('authForm');
+
+toggleAuthMode.addEventListener('click', (e) => {
+  e.preventDefault();
+  isLoginMode = !isLoginMode;
+  authError.style.display = 'none';
+  if (isLoginMode) {
+    authTitle.textContent = 'تسجيل الدخول';
+    authSubmitBtn.textContent = 'دخول';
+    toggleAuthMode.textContent = 'ليس لديك حساب؟ إنشاء حساب جديد';
+  } else {
+    authTitle.textContent = 'إنشاء حساب جديد';
+    authSubmitBtn.textContent = 'تسجيل';
+    toggleAuthMode.textContent = 'لديك حساب بالفعل؟ تسجيل الدخول';
+  }
+});
+
+authForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  authError.style.display = 'none';
+  
+  const username = document.getElementById('authUsername').value.trim();
+  const password = document.getElementById('authPassword').value;
+  
+  if (!username || !password) return;
+  
+  const endpoint = isLoginMode ? '/api/login' : '/api/register';
+  
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    
+    const data = await res.json();
+    
+    if (res.ok) {
+      if (isLoginMode) {
+        localStorage.setItem('hrm_user', data.username);
+        authSection.style.display = 'none';
+        welcomeSection.style.display = 'block';
+        authForm.reset();
+      } else {
+        // After successful registration, switch to login mode
+        isLoginMode = true;
+        authTitle.textContent = 'تسجيل الدخول';
+        authSubmitBtn.textContent = 'دخول';
+        toggleAuthMode.textContent = 'ليس لديك حساب؟ إنشاء حساب جديد';
+        authError.style.display = 'block';
+        authError.style.color = 'var(--primary)';
+        authError.textContent = 'تم إنشاء الحساب بنجاح! الرجاء تسجيل الدخول.';
+      }
+    } else {
+      authError.style.display = 'block';
+      authError.style.color = 'var(--danger)';
+      authError.textContent = data.error || 'حدث خطأ ما';
+    }
+  } catch (error) {
+    authError.style.display = 'block';
+    authError.style.color = 'var(--danger)';
+    authError.textContent = 'فشل الاتصال بالخادم';
+  }
+});
+
 // Show system section and hide welcome section
 function enterSystem() {
-  document.getElementById('welcomeSection').style.display = 'none';
-  document.getElementById('systemSection').style.display = 'block';
+  welcomeSection.style.display = 'none';
+  systemSection.style.display = 'block';
 
   // Load data on start
   fetchEmployees();

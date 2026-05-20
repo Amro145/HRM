@@ -8,8 +8,23 @@
 </head>
 <body>
 
+<!-- قسم المصادقة -->
+<div class="card" id="authSection" style="display: none;">
+  <h1 id="authTitle">تسجيل الدخول</h1>
+  <form id="authForm" style="display: flex; flex-direction: column; gap: 15px;">
+    <input type="text" id="authUsername" placeholder="اسم المستخدم" required>
+    <input type="password" id="authPassword" placeholder="كلمة المرور" required>
+    <button type="submit" id="authSubmitBtn" style="width: 100%;">دخول</button>
+  </form>
+  <div style="text-align: center; margin-top: 15px;">
+    <a href="#" id="toggleAuthMode" style="box-shadow: none; background: transparent; color: var(--primary); padding: 0;">ليس لديك حساب؟ إنشاء حساب جديد</a>
+  </div>
+  <div id="authError" style="color: var(--danger); text-align: center; margin-top: 10px; display: none;"></div>
+</div>
+
 <!-- قسم الترحيب -->
-<div class="card" id="welcomeSection">
+<div class="card" id="welcomeSection" style="display: none;">
+  <div style="text-align: left;"><button onclick="logout()" class="delete" style="margin: 0;">تسجيل الخروج</button></div>
   <h1>مرحبًا بك في نظام إدارة الموارد البشرية</h1>
   <img src="https://images.unsplash.com/photo-1551434678-e076c223a692" alt="واجهة النظام">
 
