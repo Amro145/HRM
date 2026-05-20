@@ -101,6 +101,7 @@ function enterSystem() {
 
 // Employee Management
 let employees = [];
+let editEmployeeId = null;
 const employeeForm = document.getElementById('employeeForm');
 const employeeTable = document.getElementById('employeeTable');
 
@@ -118,19 +119,30 @@ employeeForm.addEventListener('submit', async function(e) {
   e.preventDefault();
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
+  const submitBtn = employeeForm.querySelector('button[type="submit"]');
+
   if (name && email) {
     try {
-      const res = await fetch('/api/employees', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email })
-      });
-      const newEmployee = await res.json();
-      employees.push(newEmployee);
-      renderEmployees();
+      if (editEmployeeId) {
+        await fetch('/api/employees', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: editEmployeeId, name, email })
+        });
+        editEmployeeId = null;
+        submitBtn.textContent = '➕ إضافة موظف';
+        submitBtn.style.background = '';
+      } else {
+        await fetch('/api/employees', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email })
+        });
+      }
       employeeForm.reset();
+      fetchEmployees();
     } catch (error) {
-      console.error('Failed to add employee:', error);
+      console.error('Failed to save employee:', error);
     }
   }
 });
@@ -142,11 +154,23 @@ function renderEmployees() {
     tr.innerHTML = `
       <td>${emp.name}</td>
       <td>${emp.email}</td>
-      <td><button class="delete" onclick="deleteEmployee('${emp._id}')">حذف</button></td>
+      <td>
+        <button class="edit" onclick="startEditEmployee('${emp._id}', '${emp.name}', '${emp.email}')">تعديل</button>
+        <button class="delete" onclick="deleteEmployee('${emp._id}')">حذف</button>
+      </td>
     `;
     employeeTable.appendChild(tr);
   });
 }
+
+window.startEditEmployee = function(id, name, email) {
+  editEmployeeId = id;
+  document.getElementById('name').value = name;
+  document.getElementById('email').value = email;
+  const submitBtn = employeeForm.querySelector('button[type="submit"]');
+  submitBtn.textContent = 'تحديث البيانات';
+  submitBtn.style.background = '#4CAF50';
+};
 
 window.deleteEmployee = async function(id) {
   try {
@@ -160,6 +184,7 @@ window.deleteEmployee = async function(id) {
 
 // Attendance Management
 let attendance = [];
+let editAttendanceId = null;
 const attendanceForm = document.getElementById('attendanceForm');
 const attendanceTable = document.getElementById('attendanceTable');
 
@@ -178,19 +203,30 @@ attendanceForm.addEventListener('submit', async function(e) {
   const name = document.getElementById('employeeName').value.trim();
   const date = document.getElementById('date').value;
   const status = document.getElementById('status').value;
+  const submitBtn = attendanceForm.querySelector('button[type="submit"]');
+
   if (name && date && status) {
     try {
-      const res = await fetch('/api/attendance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, date, status })
-      });
-      const newRecord = await res.json();
-      attendance.push(newRecord);
-      renderAttendance();
+      if (editAttendanceId) {
+        await fetch('/api/attendance', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: editAttendanceId, name, date, status })
+        });
+        editAttendanceId = null;
+        submitBtn.textContent = '➕ إضافة حضور';
+        submitBtn.style.background = '';
+      } else {
+        await fetch('/api/attendance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, date, status })
+        });
+      }
       attendanceForm.reset();
+      fetchAttendance();
     } catch (error) {
-      console.error('Failed to add attendance:', error);
+      console.error('Failed to save attendance:', error);
     }
   }
 });
@@ -203,11 +239,24 @@ function renderAttendance() {
       <td>${att.name}</td>
       <td>${att.date}</td>
       <td>${att.status}</td>
-      <td><button class="delete" onclick="deleteAttendance('${att._id}')">حذف</button></td>
+      <td>
+        <button class="edit" onclick="startEditAttendance('${att._id}', '${att.name}', '${att.date}', '${att.status}')">تعديل</button>
+        <button class="delete" onclick="deleteAttendance('${att._id}')">حذف</button>
+      </td>
     `;
     attendanceTable.appendChild(tr);
   });
 }
+
+window.startEditAttendance = function(id, name, date, status) {
+  editAttendanceId = id;
+  document.getElementById('employeeName').value = name;
+  document.getElementById('date').value = date;
+  document.getElementById('status').value = status;
+  const submitBtn = attendanceForm.querySelector('button[type="submit"]');
+  submitBtn.textContent = 'تحديث البيانات';
+  submitBtn.style.background = '#4CAF50';
+};
 
 window.deleteAttendance = async function(id) {
   try {
@@ -221,6 +270,7 @@ window.deleteAttendance = async function(id) {
 
 // Leave Management
 let leaves = [];
+let editLeaveId = null;
 const leaveForm = document.getElementById('leaveForm');
 const leaveTable = document.getElementById('leaveTable');
 
@@ -239,19 +289,30 @@ leaveForm.addEventListener('submit', async function(e) {
   const name = document.getElementById('employeeNameLeave').value.trim();
   const date = document.getElementById('leaveDate').value;
   const type = document.getElementById('leaveType').value;
+  const submitBtn = leaveForm.querySelector('button[type="submit"]');
+
   if (name && date && type) {
     try {
-      const res = await fetch('/api/leaves', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, date, type })
-      });
-      const newLeave = await res.json();
-      leaves.push(newLeave);
-      renderLeaves();
+      if (editLeaveId) {
+        await fetch('/api/leaves', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: editLeaveId, name, date, type })
+        });
+        editLeaveId = null;
+        submitBtn.textContent = '➕ إضافة إجازة';
+        submitBtn.style.background = '';
+      } else {
+        await fetch('/api/leaves', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, date, type })
+        });
+      }
       leaveForm.reset();
+      fetchLeaves();
     } catch (error) {
-      console.error('Failed to add leave:', error);
+      console.error('Failed to save leave:', error);
     }
   }
 });
@@ -264,11 +325,24 @@ function renderLeaves() {
       <td>${leave.name}</td>
       <td>${leave.date}</td>
       <td>${leave.type}</td>
-      <td><button class="delete" onclick="deleteLeave('${leave._id}')">حذف</button></td>
+      <td>
+        <button class="edit" onclick="startEditLeave('${leave._id}', '${leave.name}', '${leave.date}', '${leave.type}')">تعديل</button>
+        <button class="delete" onclick="deleteLeave('${leave._id}')">حذف</button>
+      </td>
     `;
     leaveTable.appendChild(tr);
   });
 }
+
+window.startEditLeave = function(id, name, date, type) {
+  editLeaveId = id;
+  document.getElementById('employeeNameLeave').value = name;
+  document.getElementById('leaveDate').value = date;
+  document.getElementById('leaveType').value = type;
+  const submitBtn = leaveForm.querySelector('button[type="submit"]');
+  submitBtn.textContent = 'تحديث البيانات';
+  submitBtn.style.background = '#4CAF50';
+};
 
 window.deleteLeave = async function(id) {
   try {
@@ -282,6 +356,7 @@ window.deleteLeave = async function(id) {
 
 // Performance Management
 let performance = [];
+let editPerformanceId = null;
 const performanceForm = document.getElementById('performanceForm');
 const performanceTable = document.getElementById('performanceTable');
 
@@ -299,19 +374,30 @@ performanceForm.addEventListener('submit', async function(e) {
   e.preventDefault();
   const name = document.getElementById('employeeNamePerformance').value.trim();
   const rating = document.getElementById('performanceRating').value;
+  const submitBtn = performanceForm.querySelector('button[type="submit"]');
+
   if (name && rating) {
     try {
-      const res = await fetch('/api/performance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, rating })
-      });
-      const newPerformance = await res.json();
-      performance.push(newPerformance);
-      renderPerformance();
+      if (editPerformanceId) {
+        await fetch('/api/performance', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: editPerformanceId, name, rating })
+        });
+        editPerformanceId = null;
+        submitBtn.textContent = '➕ إضافة تقييم';
+        submitBtn.style.background = '';
+      } else {
+        await fetch('/api/performance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, rating })
+        });
+      }
       performanceForm.reset();
+      fetchPerformance();
     } catch (error) {
-      console.error('Failed to add performance:', error);
+      console.error('Failed to save performance:', error);
     }
   }
 });
@@ -323,11 +409,23 @@ function renderPerformance() {
     tr.innerHTML = `
       <td>${perf.name}</td>
       <td>${perf.rating}</td>
-      <td><button class="delete" onclick="deletePerformance('${perf._id}')">حذف</button></td>
+      <td>
+        <button class="edit" onclick="startEditPerformance('${perf._id}', '${perf.name}', '${perf.rating}')">تعديل</button>
+        <button class="delete" onclick="deletePerformance('${perf._id}')">حذف</button>
+      </td>
     `;
     performanceTable.appendChild(tr);
   });
 }
+
+window.startEditPerformance = function(id, name, rating) {
+  editPerformanceId = id;
+  document.getElementById('employeeNamePerformance').value = name;
+  document.getElementById('performanceRating').value = rating;
+  const submitBtn = performanceForm.querySelector('button[type="submit"]');
+  submitBtn.textContent = 'تحديث البيانات';
+  submitBtn.style.background = '#4CAF50';
+};
 
 window.deletePerformance = async function(id) {
   try {

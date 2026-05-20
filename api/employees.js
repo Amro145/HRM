@@ -29,6 +29,19 @@ module.exports = async (req, res) => {
       }
       break;
 
+    case 'PUT':
+      try {
+        const { id, name, email } = req.body;
+        if (!id || !name || !email) {
+          return res.status(400).json({ error: 'ID, name, and email are required' });
+        }
+        await collection.updateOne({ _id: new ObjectId(id) }, { $set: { name, email } });
+        res.status(200).json({ message: 'Employee updated successfully' });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update employee' });
+      }
+      break;
+
     case 'DELETE':
       try {
         const { id } = req.query;
@@ -43,7 +56,7 @@ module.exports = async (req, res) => {
       break;
 
     default:
-      res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
+      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
 };
